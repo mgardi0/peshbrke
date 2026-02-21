@@ -2,7 +2,7 @@
 <html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
     <title>پێشبڕکێی کۆلێژی پەروەردە</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;800&display=swap" rel="stylesheet">
     
@@ -15,6 +15,11 @@
             --glass-border: rgba(255, 255, 255, 0.2);
             --text-light: #f0f4f8;
             --transition-smooth: all 0.4s ease-out;
+        }
+
+        /* ڕێگریکردن لە گۆڕینی قەبارەی فۆنت لەلایەن سیستەمەوە */
+        html {
+            -webkit-text-size-adjust: 100%;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Kufi Arabic', sans-serif; }
@@ -72,10 +77,14 @@
         .input-group { margin-bottom: 20px; text-align: right; width: 100%; }
         .input-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #a3c2ff; }
         
+        /* گرنگترین بەش بۆ چارەسەری زوومەکە */
         input[type="text"] {
             width: 100%; padding: 15px 20px; border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(0, 0, 0, 0.2);
-            color: white; font-size: 16px; outline: none; transition: border-color 0.3s ease;
+            color: white; 
+            font-size: 16px !important; /* دەبێت ١٦ بێت بۆ ئەوەی مۆبایل زووم نەکات */
+            -webkit-appearance: none; /* لابردنی ستایلی بنەڕەتی مۆبایل */
+            outline: none; transition: border-color 0.3s ease;
         }
         input[type="text"]:focus { border-color: var(--primary-blue); background: rgba(0, 0, 0, 0.4); }
 
@@ -205,10 +214,8 @@
     </div>
 
     <script>
-        // لینکی گۆوگڵ شیتەکە
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzP8TYcKlPu4VA3liRy-UIUUoJBY5IOZM9gazbJ4e6qeePMy8QfVcNB3_IMkloYxBYY/exec";
 
-        // داتای پرسیارەکان
         const questions = [
             { q: "ئەگەر خانەیەکی ڕووەکی بخرێتە ناو گیراوەیەک کە خەستی خوێیەکەی زۆر بەرز بێت (Hypertonic)، کام لەم دیاردانە ڕوودەدات؟", options: ["A) خانەکە دەتەقێت بەهۆی زۆری ئاوەوە.", "B) ناوەڕۆکی خانەکە گرژ دەبێت و لە دیوارەخانە دوور دەکەوێتەوە.", "C) خانەکە دەئاوسێت بەبێ ئەوەی بتەقێت.", "D) هیچ گۆڕانکارییەک لە قەبارەی خانەکەدا ڕوونادات."], answer: 1 },
             { q: "بۆچی ئاو (H2O) لە پلەی گەرمی ژووردا شلە، لەکاتێکدا هایدرۆجین سەلفاید (H2S) کە کێشی مۆڵی زیاترە بە گاز دەمێنێتەوە؟", options: ["A) بەهۆی بوونی بەندی ئایۆنی لە ئاودا.", "B) بەهۆی جیاوازی قەبارەی گەردەکان.", "C) بەهۆی بوونی بەندی هایدرۆجینی بەهێز لەنێوان گەردەکانی ئاودا.", "D) چونکە ئۆکسجین کانزایە و گۆگرد ناکانزایە."], answer: 2 },
@@ -239,13 +246,11 @@
         let userName = "";
         let userDept = "";
 
-        // کۆنترۆڵی شاشەکان
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
         }
 
-        // پشکنینی Local Storage لە سەرەتاوە
         if(localStorage.getItem('koleji_quiz_completed') === 'true') {
             document.getElementById('finalMessage').textContent = "تازە بەژداریت نەکرد گوڵەباخ😏";
             document.getElementById('finalMessage').style.color = "var(--danger-red)";
@@ -254,7 +259,6 @@
             setTimeout(() => { showScreen('screen-form'); }, 3000);
         }
 
-        // Dropdown Logic
         const selectWrapper = document.getElementById('departmentSelect');
         const selectedText = document.getElementById('selectedDepartment');
         document.querySelector('.custom-select-trigger').addEventListener('click', () => selectWrapper.classList.toggle('open'));
@@ -267,12 +271,10 @@
             });
         });
 
-        // دەستپێکردنی فۆڕم و ڤالیدەیشن
         document.getElementById('startBtn').addEventListener('click', () => {
             const nameInput = document.getElementById('fullName').value.trim();
             const deptInput = selectedText.textContent;
             
-            // ڕێگەپێدراو تەنها پیتی کوردی/عەرەبی و بۆشایی
             const kurdishArabicRegex = /^[\u0600-\u06FF\u0750-\u077F\s]+$/;
             const wordsCount = nameInput.split(/\s+/).length;
 
@@ -296,7 +298,6 @@
             userDept = deptInput;
             document.getElementById('displayUserName').textContent = userName;
 
-            // داگرتنی ڕێکۆرد کە دەستی پێکرد
             localStorage.setItem('koleji_quiz_completed', 'true');
 
             showScreen('screen-countdown');
@@ -313,7 +314,6 @@
             }, 1000);
         });
 
-        // لۆجیکی پرسیارەکان
         function startQuiz() {
             isQuizActive = true;
             currentQuestionIndex = 0;
@@ -360,7 +360,7 @@
                 
                 if(timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    score -= 1; // لێبڕینی خاڵێک وەک داوات کرد
+                    score -= 1;
                     showCorrectAnswer();
                 }
             }, 1000);
@@ -371,15 +371,15 @@
             const correctIndex = questions[currentQuestionIndex].answer;
             const allBtns = document.querySelectorAll('.option-btn');
             
-            allBtns.forEach(b => b.style.pointerEvents = 'none'); // ڕێگری لە کلیکی دووەم
+            allBtns.forEach(b => b.style.pointerEvents = 'none');
 
             if(selectedIndex === correctIndex) {
                 btn.classList.add('correct');
-                score += 1; // زیادکردنی نمرە
+                score += 1;
             } else {
                 btn.classList.add('wrong');
                 allBtns[correctIndex].classList.add('correct');
-                score -= 1; // لێبڕینی خاڵێک چونکە هەڵەیە
+                score -= 1;
             }
 
             setTimeout(() => {
@@ -400,7 +400,6 @@
             }, 1200);
         }
 
-        // دژە قۆپیە (Anti-Cheat)
         document.addEventListener("visibilitychange", () => {
             if (document.hidden && isQuizActive) {
                 triggerCheat("بەتەمای قۆپیە بکەی گوڵەباخ😏");
@@ -416,11 +415,10 @@
         function triggerCheat(message) {
             isQuizActive = false;
             clearInterval(timerInterval);
-            score = 0; // سفڕکردنی نمرە
+            score = 0;
             endQuiz(message, true);
         }
 
-        // کۆتایی تاقیکردنەوە و ناردنی داتا
         function endQuiz(message, isCheater = false) {
             isQuizActive = false;
             showScreen('screen-result');
