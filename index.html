@@ -2,19 +2,18 @@
 <html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>پێشبڕکێی کۆلێژی پەروەردە</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ڕێکخستنی سەرەتایی و گۆڕاوەکان */
         :root {
             --primary-purple: #7a28cb;
             --primary-blue: #00d2ff;
             --glass-bg: rgba(255, 255, 255, 0.08);
             --glass-border: rgba(255, 255, 255, 0.2);
             --text-light: #f0f4f8;
-            --transition-smooth: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --transition-smooth: all 0.5s ease-out;
         }
 
         * {
@@ -27,14 +26,15 @@
         body {
             background-color: #0a0a0a;
             color: var(--text-light);
-            overflow: hidden; /* ڕێگریکردن لە سکڕۆڵ بۆ هێشتنەوەی دیزاینەکە وەک ئەپ */
+            overflow: hidden;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            /* ڕێگریکردن لەوەی بەکارهێنەر بە پەنجە زووم بکات */
+            touch-action: pan-x pan-y; 
         }
 
-        /* باگگراوندی فەیدبووی جوڵاو (Mesh Gradient) */
         .animated-bg {
             position: absolute;
             top: -50%;
@@ -49,12 +49,11 @@
         }
 
         @keyframes moveGradient {
-            0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(10%, 15%) scale(1.1); }
-            100% { transform: translate(-10%, -10%) scale(1); }
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(5%, 10%); }
+            100% { transform: translate(-5%, -5%); }
         }
 
-        /* شاشەکان (Screens) */
         .screen {
             position: absolute;
             width: 100%;
@@ -66,16 +65,16 @@
             opacity: 0;
             pointer-events: none;
             transition: var(--transition-smooth);
-            transform: translateY(20px) scale(0.95);
+            /* لێرەدا Scale لابرا بۆ ئەوەی بۆکسەکە ستەیبڵ بێت */
+            transform: translateY(15px);
         }
 
         .screen.active {
             opacity: 1;
             pointer-events: auto;
-            transform: translateY(0) scale(1);
+            transform: translateY(0);
         }
 
-        /* ستایلی دیزاینی شووشەیی (Glassmorphism) */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -85,11 +84,15 @@
             padding: 40px;
             width: 90%;
             max-width: 500px;
+            /* دانانی بەرزییەکی جێگیر بۆ ئەوەی بۆکسەکە نەکشێت */
+            min-height: 420px; 
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        /* دەقەکان */
         h1 {
             font-size: 1.8rem;
             font-weight: 800;
@@ -103,10 +106,10 @@
         h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 15px; }
         p { font-size: 1rem; margin-bottom: 25px; color: #d1d5db; }
 
-        /* بۆکسەکانی داخڵکردن */
         .input-group {
             margin-bottom: 20px;
             text-align: right;
+            width: 100%;
         }
 
         .input-group label {
@@ -123,19 +126,18 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.2);
             color: white;
-            font-size: 1rem;
+            /* فۆنتی 16 ڕێگری لە زوومی ئۆتۆماتیکی مۆبایل دەکات */
+            font-size: 16px; 
             outline: none;
-            transition: var(--transition-smooth);
+            transition: border-color 0.3s ease;
         }
 
         input[type="text"]:focus {
             border-color: var(--primary-blue);
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
             background: rgba(0, 0, 0, 0.4);
         }
 
-        /* دروستکردنی لیستی هەڵبژاردنی تایبەت (Custom Select) بە ستایلی سمووز */
-        .custom-select-wrapper { position: relative; }
+        .custom-select-wrapper { position: relative; width: 100%; }
         
         .custom-select-trigger {
             width: 100%;
@@ -144,12 +146,11 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             background: rgba(0, 0, 0, 0.2);
             color: white;
-            font-size: 1rem;
+            font-size: 16px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: var(--transition-smooth);
         }
 
         .custom-options {
@@ -165,28 +166,27 @@
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-            transition: var(--transition-smooth);
+            transition: all 0.3s ease;
             max-height: 200px;
             overflow-y: auto;
             z-index: 10;
+            text-align: right;
         }
 
         .custom-select-wrapper.open .custom-options {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
-            transform: translateY(0);
         }
 
         .custom-option {
             padding: 12px 20px;
             cursor: pointer;
-            transition: background 0.3s ease;
+            font-size: 16px;
         }
 
         .custom-option:hover { background: rgba(122, 40, 203, 0.4); }
 
-        /* دوگمەکان */
         .btn {
             background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
             border: none;
@@ -197,40 +197,29 @@
             font-weight: 600;
             cursor: pointer;
             width: 100%;
-            transition: var(--transition-smooth);
-            box-shadow: 0 4px 15px rgba(122, 40, 203, 0.3);
+            margin-top: 10px;
+            transition: all 0.3s ease;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(0, 210, 255, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 210, 255, 0.3);
         }
 
-        .btn:active { transform: translateY(2px) scale(0.98); }
-
-        /* ژماردنی کات (Countdown) */
         .countdown-text {
             font-size: 8rem;
             font-weight: 800;
             background: linear-gradient(to right, #fff, var(--primary-blue));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: pulse 1s infinite;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.7; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.9); opacity: 0.7; }
-        }
-
-        /* ستایلی کاتیی پرسیارەکان */
         .quiz-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 15px;
+            width: 100%;
         }
         
         .question-text {
@@ -238,7 +227,10 @@
             margin-bottom: 30px;
             line-height: 1.8;
             text-align: right;
+            width: 100%;
         }
+
+        .options-container { width: 100%; }
 
         .option-btn {
             background: rgba(0, 0, 0, 0.2);
@@ -248,16 +240,15 @@
             width: 100%;
             text-align: right;
             color: white;
-            font-size: 1rem;
+            font-size: 16px;
             margin-bottom: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: background 0.2s ease;
         }
 
         .option-btn:hover {
             background: rgba(122, 40, 203, 0.2);
             border-color: var(--primary-purple);
-            transform: translateX(-5px);
         }
     </style>
 </head>
@@ -266,7 +257,7 @@
     <div class="animated-bg"></div>
 
     <div id="screen-welcome" class="screen active">
-        <h1 style="font-size: 2.5rem; text-align: center; max-width: 800px;">
+        <h1 style="font-size: 2.2rem; text-align: center; max-width: 800px; padding: 0 20px;">
             بەخێربێی بۆ پێشبڕکێی پرسیارو وەڵامی کۆلێژی پەروەردە
         </h1>
     </div>
@@ -274,7 +265,7 @@
     <div id="screen-form" class="screen">
         <div class="glass-card">
             <h2>زانیارییەکانت تۆمار بکە</h2>
-            <p>تکایە پێش دەستپێکردن ئەم فۆڕمە پڕبکەرەوە</p>
+            <p style="margin-bottom: 15px;">تکایە پێش دەستپێکردن ئەم فۆڕمە پڕبکەرەوە</p>
             
             <div class="input-group">
                 <label>ناوی سیانیت بنووسە:</label>
@@ -303,7 +294,7 @@
                 </div>
             </div>
 
-            <p style="margin-top: 30px; font-weight: 600; color: white;">ئامادەی بۆ تاقیکردنەوەکە؟</p>
+            <p style="margin-top: 10px; font-weight: 600; color: white;">ئامادەی بۆ تاقیکردنەوەکە؟</p>
             <button class="btn" id="startBtn">با دەست پێبکەین</button>
         </div>
     </div>
@@ -333,21 +324,18 @@
     </div>
 
     <script>
-        // کۆنترۆڵکردنی شاشەکان بە سمووزی
         const screenWelcome = document.getElementById('screen-welcome');
         const screenForm = document.getElementById('screen-form');
         const screenCountdown = document.getElementById('screen-countdown');
         const screenQuiz = document.getElementById('screen-quiz');
         
-        // ونکردنی شاشەی پێشوازی دوای 3 چرکە
         setTimeout(() => {
             screenWelcome.classList.remove('active');
             setTimeout(() => {
                 screenForm.classList.add('active');
-            }, 600); // چاوەڕێکردن تا فەیدئاوتەکە تەواو دەبێت
+            }, 500);
         }, 3000);
 
-        // کۆنترۆڵکردنی Custom Select (لیستی هەڵبژاردنی بەشەکان)
         const selectWrapper = document.getElementById('departmentSelect');
         const selectTrigger = document.querySelector('.custom-select-trigger');
         const options = document.querySelectorAll('.custom-option');
@@ -365,38 +353,32 @@
             });
         });
 
-        // داخستنی لیستەکە ئەگەر لە دەرەوەی کلیک کرا
         window.addEventListener('click', (e) => {
             if (!selectWrapper.contains(e.target)) {
                 selectWrapper.classList.remove('open');
             }
         });
 
-        // دەستپێکردنی پێشبڕکێ و ژماردنی کات
         const startBtn = document.getElementById('startBtn');
         const countdownTimer = document.getElementById('countdownTimer');
         const nameInput = document.getElementById('fullName');
         const displayUserName = document.getElementById('displayUserName');
 
         startBtn.addEventListener('click', () => {
-            // پشکنین کە ئایا ناوی نووسیوە
             if(nameInput.value.trim() === "") {
                 nameInput.style.borderColor = "red";
                 setTimeout(() => nameInput.style.borderColor = "rgba(255, 255, 255, 0.1)", 2000);
                 return;
             }
 
-            // گواستنەوەی ناوەکە بۆ ناو شاشەی پرسیارەکان
             displayUserName.textContent = nameInput.value;
-
-            // شاردنەوەی فۆڕم و هێنانی ژمێرەر
             screenForm.classList.remove('active');
             
             setTimeout(() => {
                 screenCountdown.classList.add('active');
                 
-                // لۆجیکی 3, 2, 1
                 let count = 3;
+                countdownTimer.textContent = count;
                 let countInterval = setInterval(() => {
                     count--;
                     if (count > 0) {
@@ -405,14 +387,13 @@
                         clearInterval(countInterval);
                         screenCountdown.classList.remove('active');
                         
-                        // پیشاندانی پرسیارەکان
                         setTimeout(() => {
                             screenQuiz.classList.add('active');
-                        }, 600);
+                        }, 500);
                     }
                 }, 1000);
 
-            }, 600);
+            }, 500);
         });
     </script>
 </body>
