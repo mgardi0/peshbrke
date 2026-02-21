@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پێشبڕکێی کۆلێژی پەروەردە</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ڕێکخستنی سەرەتایی و گۆڕاوەکان */
+        :root {
+            --primary-purple: #7a28cb;
+            --primary-blue: #00d2ff;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-light: #f0f4f8;
+            --transition-smooth: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Kufi Arabic', sans-serif;
+        }
+
+        body {
+            background-color: #0a0a0a;
+            color: var(--text-light);
+            overflow: hidden; /* ڕێگریکردن لە سکڕۆڵ بۆ هێشتنەوەی دیزاینەکە وەک ئەپ */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* باگگراوندی فەیدبووی جوڵاو (Mesh Gradient) */
+        .animated-bg {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(122, 40, 203, 0.4), transparent 60%),
+                        radial-gradient(circle at 80% 20%, rgba(0, 210, 255, 0.4), transparent 50%);
+            animation: moveGradient 15s infinite alternate ease-in-out;
+            z-index: -1;
+            filter: blur(60px);
+        }
+
+        @keyframes moveGradient {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(10%, 15%) scale(1.1); }
+            100% { transform: translate(-10%, -10%) scale(1); }
+        }
+
+        /* شاشەکان (Screens) */
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition-smooth);
+            transform: translateY(20px) scale(0.95);
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+
+        /* ستایلی دیزاینی شووشەیی (Glassmorphism) */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        /* دەقەکان */
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            background: linear-gradient(to right, #fff, #a3c2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 { font-size: 1.4rem; font-weight: 600; margin-bottom: 15px; }
+        p { font-size: 1rem; margin-bottom: 25px; color: #d1d5db; }
+
+        /* بۆکسەکانی داخڵکردن */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #a3c2ff;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        /* دروستکردنی لیستی هەڵبژاردنی تایبەت (Custom Select) بە ستایلی سمووز */
+        .custom-select-wrapper { position: relative; }
+        
+        .custom-select-trigger {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition-smooth);
+        }
+
+        .custom-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            margin-top: 8px;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: var(--transition-smooth);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .custom-select-wrapper.open .custom-options {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .custom-option {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .custom-option:hover { background: rgba(122, 40, 203, 0.4); }
+
+        /* دوگمەکان */
+        .btn {
+            background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
+            border: none;
+            border-radius: 12px;
+            padding: 15px 30px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 15px rgba(122, 40, 203, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 210, 255, 0.4);
+        }
+
+        .btn:active { transform: translateY(2px) scale(0.98); }
+
+        /* ژماردنی کات (Countdown) */
+        .countdown-text {
+            font-size: 8rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
+
+        /* ستایلی کاتیی پرسیارەکان */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            text-align: right;
+        }
+
+        .option-btn {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            width: 100%;
+            text-align: right;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            background: rgba(122, 40, 203, 0.2);
+            border-color: var(--primary-purple);
+            transform: translateX(-5px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="animated-bg"></div>
+
+    <div id="screen-welcome" class="screen active">
+        <h1 style="font-size: 2.5rem; text-align: center; max-width: 800px;">
+            بەخێربێی بۆ پێشبڕکێی پرسیارو وەڵامی کۆلێژی پەروەردە
+        </h1>
+    </div>
+
+    <div id="screen-form" class="screen">
+        <div class="glass-card">
+            <h2>زانیارییەکانت تۆمار بکە</h2>
+            <p>تکایە پێش دەستپێکردن ئەم فۆڕمە پڕبکەرەوە</p>
+            
+            <div class="input-group">
+                <label>ناوی سیانیت بنووسە:</label>
+                <input type="text" id="fullName" placeholder="بۆ نموونە: ئەحمەد محەممەد عەلی" autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <label>لە چ بەشێکی؟</label>
+                <div class="custom-select-wrapper" id="departmentSelect">
+                    <div class="custom-select-trigger">
+                        <span id="selectedDepartment">بەشەکەت هەڵبژێرە...</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="custom-options">
+                        <div class="custom-option">بایۆلۆجی</div>
+                        <div class="custom-option">کیمیا</div>
+                        <div class="custom-option">فیزیا</div>
+                        <div class="custom-option">ماتماتیک</div>
+                        <div class="custom-option">ڕێنمایی پەروەردەیی و دەروونی</div>
+                        <div class="custom-option">پەروەردەی تایبەت</div>
+                        <div class="custom-option">ئینگلیزی</div>
+                        <div class="custom-option">عەرەبی</div>
+                        <div class="custom-option">کوردی</div>
+                        <div class="custom-option">سریانی</div>
+                    </div>
+                </div>
+            </div>
+
+            <p style="margin-top: 30px; font-weight: 600; color: white;">ئامادەی بۆ تاقیکردنەوەکە؟</p>
+            <button class="btn" id="startBtn">با دەست پێبکەین</button>
+        </div>
+    </div>
+
+    <div id="screen-countdown" class="screen">
+        <div class="countdown-text" id="countdownTimer">3</div>
+    </div>
+
+    <div id="screen-quiz" class="screen">
+        <div class="glass-card" style="max-width: 600px;">
+            <div class="quiz-header">
+                <span style="color: var(--primary-blue); font-weight: bold;">پرسیاری 1 / 20</span>
+                <span id="displayUserName" style="color: #ccc;">ناوی بەشداربوو</span>
+            </div>
+            
+            <div class="question-text">
+                لێرەدا دەقی پرسیارەکە دەنووسرێت بە شێوەیەکی ڕوون و ئاسان بۆ خوێندنەوە. ئەمە تەنها تێمپلەیتێکە بۆ بینینی دیزاینەکە.
+            </div>
+
+            <div class="options-container">
+                <button class="option-btn">أ) هەڵبژاردەی یەکەم</button>
+                <button class="option-btn">ب) هەڵبژاردەی دووەم</button>
+                <button class="option-btn">ج) هەڵبژاردەی سێیەم</button>
+                <button class="option-btn">د) هەڵبژاردەی چوارەم</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // کۆنترۆڵکردنی شاشەکان بە سمووزی
+        const screenWelcome = document.getElementById('screen-welcome');
+        const screenForm = document.getElementById('screen-form');
+        const screenCountdown = document.getElementById('screen-countdown');
+        const screenQuiz = document.getElementById('screen-quiz');
+        
+        // ونکردنی شاشەی پێشوازی دوای 3 چرکە
+        setTimeout(() => {
+            screenWelcome.classList.remove('active');
+            setTimeout(() => {
+                screenForm.classList.add('active');
+            }, 600); // چاوەڕێکردن تا فەیدئاوتەکە تەواو دەبێت
+        }, 3000);
+
+        // کۆنترۆڵکردنی Custom Select (لیستی هەڵبژاردنی بەشەکان)
+        const selectWrapper = document.getElementById('departmentSelect');
+        const selectTrigger = document.querySelector('.custom-select-trigger');
+        const options = document.querySelectorAll('.custom-option');
+        const selectedText = document.getElementById('selectedDepartment');
+
+        selectTrigger.addEventListener('click', () => {
+            selectWrapper.classList.toggle('open');
+        });
+
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                selectedText.textContent = this.textContent;
+                selectedText.style.color = "white";
+                selectWrapper.classList.remove('open');
+            });
+        });
+
+        // داخستنی لیستەکە ئەگەر لە دەرەوەی کلیک کرا
+        window.addEventListener('click', (e) => {
+            if (!selectWrapper.contains(e.target)) {
+                selectWrapper.classList.remove('open');
+            }
+        });
+
+        // دەستپێکردنی پێشبڕکێ و ژماردنی کات
+        const startBtn = document.getElementById('startBtn');
+        const countdownTimer = document.getElementById('countdownTimer');
+        const nameInput = document.getElementById('fullName');
+        const displayUserName = document.getElementById('displayUserName');
+
+        startBtn.addEventListener('click', () => {
+            // پشکنین کە ئایا ناوی نووسیوە
+            if(nameInput.value.trim() === "") {
+                nameInput.style.borderColor = "red";
+                setTimeout(() => nameInput.style.borderColor = "rgba(255, 255, 255, 0.1)", 2000);
+                return;
+            }
+
+            // گواستنەوەی ناوەکە بۆ ناو شاشەی پرسیارەکان
+            displayUserName.textContent = nameInput.value;
+
+            // شاردنەوەی فۆڕم و هێنانی ژمێرەر
+            screenForm.classList.remove('active');
+            
+            setTimeout(() => {
+                screenCountdown.classList.add('active');
+                
+                // لۆجیکی 3, 2, 1
+                let count = 3;
+                let countInterval = setInterval(() => {
+                    count--;
+                    if (count > 0) {
+                        countdownTimer.textContent = count;
+                    } else {
+                        clearInterval(countInterval);
+                        screenCountdown.classList.remove('active');
+                        
+                        // پیشاندانی پرسیارەکان
+                        setTimeout(() => {
+                            screenQuiz.classList.add('active');
+                        }, 600);
+                    }
+                }, 1000);
+
+            }, 600);
+        });
+    </script>
+</body>
+</html>
